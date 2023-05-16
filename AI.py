@@ -6,18 +6,15 @@ from tensorflow.keras import Model
 from tensorflow.keras.layers import Dense, Flatten
 from tensorflow.keras.optimizers import Adam
 
-# Определение размера игрового поля и игровых знаков
 CELL_SIZE = 100
 WIDTH, HEIGHT = CELL_SIZE * 3, CELL_SIZE * 3
 LINE_WIDTH = 15
 CROSS_WIDTH = 25
 SPACE = CELL_SIZE // 4
 
-# Определение цветов
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 
-# Инициализация pygame
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("vs ai")
@@ -53,7 +50,6 @@ class TicTacToe:
     def is_draw(self):
         return not any('' in row for row in self.board)
 
-
     def get_state(self):
         return self.board
 
@@ -62,7 +58,6 @@ class TicTacToe:
 
     def make_move(self, cell, player):
         self.board[cell[0]][cell[1]] = player
-
 
     def is_draw(self):
         return all(self.board[row][col] != '' for row in range(3) for col in range(3))
@@ -76,11 +71,9 @@ class TicTacToe:
 
 
 def draw_lines():
-    # Vertical lines
     pygame.draw.line(screen, BLACK, (CELL_SIZE, 0), (CELL_SIZE, HEIGHT), LINE_WIDTH)
     pygame.draw.line(screen, BLACK, (CELL_SIZE * 2, 0), (CELL_SIZE * 2, HEIGHT), LINE_WIDTH)
-
-    # Горизонтальные линии
+    
     pygame.draw.line(screen, BLACK, (0, CELL_SIZE), (WIDTH, CELL_SIZE), LINE_WIDTH)
     pygame.draw.line(screen, BLACK, (0, CELL_SIZE * 2), (WIDTH, CELL_SIZE * 2), LINE_WIDTH)
 
@@ -112,12 +105,12 @@ class Agent:
     
     def get_action(self, state, available_actions):
         q_values = self.get_q_values(state)
-        q_values = q_values[0] # изменение формы q_values с (1,9) на (9,)
-        actions_sorted_by_q_values = np.argsort(-q_values) # получение действий, отсортированных по убыванию Q-значений
+        q_values = q_values[0]
+        actions_sorted_by_q_values = np.argsort(-q_values) 
         for action in actions_sorted_by_q_values:
             if action in available_actions:
                 return action
-        return np.random.choice(available_actions) # если все Q-значения одинаковы, выберите случайное действие
+        return np.random.choice(available_actions) 
 
     def train(self, state, action, next_state, reward, done):
         q_values = self.get_q_values(state)
@@ -131,9 +124,7 @@ class Agent:
 
     def save_model(self, name):
         self.q_network.save(name)
-
-
-
+        
 def preprocess_state(state):
     return np.array([[1 if cell == 'X' else -1 if cell == 'O' else 0 for cell in row] for row in state])
 
@@ -159,7 +150,7 @@ def main():
                 pygame.quit()
                 sys.exit()
 
-        if game.player_turn == 'X':  # игрок делает ход вручную
+        if game.player_turn == 'X':  
             if event.type == pygame.MOUSEBUTTONDOWN:
                 mouseX = event.pos[0] // CELL_SIZE
                 mouseY = event.pos[1] // CELL_SIZE
@@ -179,12 +170,12 @@ def main():
                     draw_figures(game)
         else:  # агент делает ход
             state = game.get_state()
-            state = preprocess_state(state)  # функция для преобразования состояния игры в формат, подходящий для нейронной сети
+            state = preprocess_state(state)  
             available_actions = [i * 3 + j for i, j in game.available_actions()]
-            action = agent.get_action(state.reshape(1, 9), available_actions)  # используйте reshape для совместимости с вводом модели
+            action = agent.get_action(state.reshape(1, 9), available_actions)  
             game.make_move((action // 3, action % 3), game.player_turn)
             draw_figures(game)
-            reward = calculate_reward(game)  # функция для вычисления награды
+            reward = calculate_reward(game)  
             next_state = game.get_state()
             next_state = preprocess_state(next_state)
             done = game.game_over()
