@@ -168,7 +168,7 @@ def main():
                     else:
                         game.player_turn = 'O' if game.player_turn == 'X' else 'X'
                     draw_figures(game)
-        else:  # агент делает ход
+        else:  
             state = game.get_state()
             state = preprocess_state(state)  
             available_actions = [i * 3 + j for i, j in game.available_actions()]
